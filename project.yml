@@ -15,11 +15,16 @@ targets:
     platform: iOS
     sources:
       - path: AdhkarWidget
+        includes:
+          - "*.swift"
+          - "Models/*.swift"
         excludes:
-          - "Widget/AdhkarWidgetBundle.swift"
+          - "Widget/*"
+      - path: AdhkarWidget/Info.plist
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.adhkar.widgetapp
       INFOPLIST_FILE: AdhkarWidget/Info.plist
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) APP"
     dependencies:
       - target: AdhkarWidgetExtension
 
@@ -29,11 +34,11 @@ targets:
     sources:
       - path: AdhkarWidget
         includes:
-          - "Widget/AdhkarWidget.swift"
-          - "Widget/AdhkarWidgetBundle.swift"
+          - "Widget/*.swift"
           - "Models/*.swift"
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.adhkar.widgetapp.extension
       INFOPLIST_FILE: AdhkarWidgetExtension/Info.plist
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) EXTENSION"
     info:
       path: AdhkarWidgetExtension/Info.plist

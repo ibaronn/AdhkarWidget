@@ -54,7 +54,6 @@ struct ContentView: View {
                     Image(systemName: "moon.stars.fill")
                         .font(.system(size: 40))
                         .foregroundColor(.white)
-                        .symbolEffect(.breathe.pulse, options: .repeating, isActive: true)
                 }
 
                 Text("أذكاري")
@@ -71,43 +70,11 @@ struct ContentView: View {
 
     private var featuresSection: some View {
         VStack(spacing: 12) {
-            ForEach(Array([
-                ("clock.fill", "الساعة والتاريخ", "الوقت والتاريخ الميلادي والهجري مع أيام الأسبوع"),
-                ("hands.sparkles.fill", "الأذكار", "أذكار الصباح والمساء وبعد الصلاة والنوم"),
-                ("book.fill", "آيات القرآن", "آيات مختارة من القرآن الكريم مع اسم السورة"),
-                ("hands.praying.fill", "الأدعية", "مجموعة من الأدعية المأثورة لكل مناسبة"),
-            ].enumerated()), id: \.offset) { index, item in
-                featureRow(icon: item.1, title: item.2, desc: item.3, index: index)
-                    .scaleEffect(selectedFeature == index ? 1.02 : 1)
-                    .onTapGesture {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                            selectedFeature = selectedFeature == index ? nil : index
-                        }
-                    }
-            }
+            FeatureItem(icon: "clock.fill", title: "الساعة والتاريخ", desc: "الوقت والتاريخ الميلادي والهجري مع أيام الأسبوع", selectedFeature: $selectedFeature, index: 0)
+            FeatureItem(icon: "hands.sparkles.fill", title: "الأذكار", desc: "أذكار الصباح والمساء وبعد الصلاة والنوم", selectedFeature: $selectedFeature, index: 1)
+            FeatureItem(icon: "book.fill", title: "آيات القرآن", desc: "آيات مختارة من القرآن الكريم مع اسم السورة", selectedFeature: $selectedFeature, index: 2)
+            FeatureItem(icon: "hands.praying.fill", title: "الأدعية", desc: "مجموعة من الأدعية المأثورة لكل مناسبة", selectedFeature: $selectedFeature, index: 3)
         }
-    }
-
-    private func featureRow(icon: String, title: String, desc: String, index: Int) -> some View {
-        GlassCard {
-            HStack(spacing: 14) {
-                AnimatedIcon(systemName: icon)
-
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text(title)
-                        .font(.headline)
-                        .foregroundColor(.white)
-
-                    Text(desc)
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.55))
-                        .lineLimit(selectedFeature == index ? nil : 1)
-                }
-
-                Spacer(minLength: 0)
-            }
-        }
-        .animation(.spring(response: 0.35, dampingFraction: 0.7), value: selectedFeature == index)
     }
 
     private var previewSection: some View {
@@ -225,6 +192,43 @@ struct ContentView: View {
                 .font(.caption)
                 .foregroundColor(.white.opacity(0.65))
             Spacer()
+        }
+    }
+}
+
+struct FeatureItem: View {
+    let icon: String
+    let title: String
+    let desc: String
+    @Binding var selectedFeature: Int?
+    let index: Int
+    @State private var isSelected = false
+
+    var body: some View {
+        GlassCard {
+            HStack(spacing: 14) {
+                AnimatedIcon(systemName: icon)
+
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundColor(.white)
+
+                    Text(desc)
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.55))
+                        .lineLimit(isSelected ? nil : 1)
+                }
+
+                Spacer(minLength: 0)
+            }
+        }
+        .scaleEffect(isSelected ? 1.02 : 1)
+        .onTapGesture {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                isSelected.toggle()
+                selectedFeature = isSelected ? index : nil
+            }
         }
     }
 }
