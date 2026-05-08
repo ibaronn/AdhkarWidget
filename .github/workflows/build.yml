@@ -28,26 +28,53 @@ jobs:
       - name: Generate project
         run: xcodegen generate
 
-      - name: Build for iOS Device
+      - name: Write entitlements
+        run: |
+          cat > /tmp/entitlements.plist << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>keychain-access-groups</key>
+    <array>
+        <string>$(AppIdentifierPrefix)com.adhkar.widgetapp</string>
+    </array>
+    <key>get-task-allow</key>
+    <true/>
+    <key>application-identifier</key>
+    <string>$(AppIdentifierPrefix)com.adhkar.widgetapp</string>
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
+</dict>
+</plist>
+EOF
+
+      - name: Build for iOS Device (unsigned)
         run: |
           xcodebuild -project AdhkarWidget.xcodeproj \
             -scheme AdhkarWidget \
             -destination 'generic/platform=iOS' \
             -configuration Debug \
             -derivedDataPath /tmp/AdhkarWidgetBuild \
-            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
             build
 
-      - name: Create IPA
+      - name: Sign and create IPA
         run: |
           APP="/tmp/AdhkarWidgetBuild/Build/Products/Debug-iphoneos/AdhkarWidget.app"
           EXT="$APP/PlugIns/AdhkarWidgetExtension.appex"
 
-          # Apply lightweight ad-hoc signature
-          codesign --force --sign - "$APP" 2>/dev/null || true
+          # Install ldid
+          brew install ldid
+
+          # Sign main binary
+          ldid -S/tmp/entitlements.plist "$APP/AdhkarWidget" && echo "ldid OK: main" || echo "ldid FAIL: main"
+
+          # Sign extension
           if [ -d "$EXT" ]; then
-            codesign --force --sign - "$EXT" 2>/dev/null || true
+            ldid -S/tmp/entitlements.plist "$EXT/AdhkarWidgetExtension" && echo "ldid OK: ext" || echo "ldid FAIL: ext"
           fi
 
           # Package as IPA
