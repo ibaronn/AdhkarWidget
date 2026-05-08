@@ -1,0 +1,39 @@
+name: AdhkarWidget
+options:
+  bundleIdPrefix: com.adhkar
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "15.0"
+  developmentLanguage: ar
+
+settings:
+  SWIFT_VERSION: "5.9"
+
+targets:
+  AdhkarWidget:
+    type: application
+    platform: iOS
+    sources:
+      - path: AdhkarWidget
+        excludes:
+          - "Widget/AdhkarWidgetBundle.swift"
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.adhkar.widgetapp
+      INFOPLIST_FILE: AdhkarWidget/Info.plist
+    dependencies:
+      - target: AdhkarWidgetExtension
+
+  AdhkarWidgetExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: AdhkarWidget
+        includes:
+          - "Widget/AdhkarWidget.swift"
+          - "Widget/AdhkarWidgetBundle.swift"
+          - "Models/*.swift"
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.adhkar.widgetapp.extension
+      INFOPLIST_FILE: AdhkarWidgetExtension/Info.plist
+    info:
+      path: AdhkarWidgetExtension/Info.plist
