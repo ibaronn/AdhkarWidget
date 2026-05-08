@@ -19,6 +19,9 @@ jobs:
       - name: Setup Xcode
         run: sudo xcode-select -s /Applications/Xcode.app || true
 
+      - name: Generate app icon
+        run: python3 .github/scripts/generate_icon.py
+
       - name: Install XcodeGen
         run: brew install XcodeGen
 
@@ -32,24 +35,27 @@ jobs:
             -destination 'generic/platform=iOS' \
             -configuration Debug \
             -derivedDataPath /tmp/AdhkarWidgetBuild \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
             build
 
-      - name: Apply ad-hoc signature and create IPA
+      - name: Create IPA
         run: |
           APP="/tmp/AdhkarWidgetBuild/Build/Products/Debug-iphoneos/AdhkarWidget.app"
-          codesign --force --sign - --deep "$APP" || true
-          # Also sign the extension
           EXT="$APP/PlugIns/AdhkarWidgetExtension.appex"
+
+          # Apply lightweight ad-hoc signature
+          codesign --force --sign - "$APP" 2>/dev/null || true
           if [ -d "$EXT" ]; then
-            codesign --force --sign - "$EXT" || true
+            codesign --force --sign - "$EXT" 2>/dev/null || true
           fi
+
+          # Package as IPA
           mkdir -p /tmp/Payload
           cp -R "$APP" /tmp/Payload/
           cd /tmp
           zip -r AdhkarWidget.ipa Payload -x "*.DS_Store"
+          ls -lh /tmp/AdhkarWidget.ipa
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4

@@ -18,6 +18,7 @@ targets:
         includes:
           - "*.swift"
           - "Models/*.swift"
+          - "Resources/*"
         excludes:
           - "Widget/*"
       - path: AdhkarWidget/Info.plist
