@@ -33,9 +33,17 @@ jobs:
             -configuration Debug \
             build
 
+      - name: Find and zip build
+        run: |
+          find ~/Library/Developer/Xcode/DerivedData -name "AdhkarWidget.app" -path "*/Debug-iphonesimulator/*" -type d | head -1 | while read app; do
+            echo "Found: $app"
+            ditto -c -k --rsrc "$app" /tmp/AdhkarWidget.zip
+          done
+          ls -la /tmp/AdhkarWidget.zip
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: AdhkarWidget-Simulator-Build
-          path: ~/Library/Developer/Xcode/DerivedData/**/Build/Products/Debug-iphonesimulator/AdhkarWidget.app
+          path: /tmp/AdhkarWidget.zip
           if-no-files-found: warn
