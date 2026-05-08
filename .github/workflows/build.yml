@@ -21,7 +21,7 @@ jobs:
 
       - name: Create Xcode project with Ruby
         run: |
-          gem install xcodeproj
+          gem install xcodeproj -v 1.25.0
           ruby .github/scripts/create_project.rb
 
       - name: Build for Simulator
