@@ -19,14 +19,10 @@ jobs:
       - name: Select Xcode 15.4
         run: sudo xcode-select -s /Applications/Xcode_15.4.app
 
-      - name: Download XcodeGen 2.32
+      - name: Create Xcode project with Ruby
         run: |
-          curl -sL https://github.com/XcodeGen/XcodeGen/releases/download/2.32.0/xcodegen.zip -o /tmp/xcodegen.zip
-          unzip -q /tmp/xcodegen.zip -d /tmp/xcodegen
-          sudo cp /tmp/xcodegen/xcodegen /usr/local/bin/
-
-      - name: Generate Xcode project
-        run: xcodegen generate
+          gem install xcodeproj
+          ruby .github/scripts/create_project.rb
 
       - name: Build for Simulator
         run: |
